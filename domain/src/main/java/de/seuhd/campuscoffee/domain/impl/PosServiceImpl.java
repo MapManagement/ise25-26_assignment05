@@ -21,7 +21,8 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Implementation of the POS service that handles business logic related to POS entities.
+ * Implementation of the POS service that handles business logic related to POS
+ * entities.
  */
 @Slf4j
 @Service
@@ -48,7 +49,11 @@ public class PosServiceImpl implements PosService {
         return posDataService.getById(id);
     }
 
-    // TODO: Implement getByName after adding it to the PosService interface. Note that the PosDataService already supports filtering by name.
+    @Override
+    public @NonNull Pos getByName(@NonNull String name) {
+        log.debug("Retrieving filtered POS");
+        return posDataService.getByName(name);
+    }
 
     @Override
     public @NonNull Pos upsert(@NonNull Pos pos) throws PosNotFoundException {
@@ -85,10 +90,11 @@ public class PosServiceImpl implements PosService {
      * Converts an OSM node to a POS domain object.
      * Maps OSM amenity types to POS types and validates required fields.
      *
-     * @param osmNode the OSM node data
+     * @param osmNode    the OSM node data
      * @param campusType the campus where the POS is located
      * @return a new Pos object with data from the OSM node
-     * @throws OsmNodeMissingFieldsException if required fields are missing or invalid
+     * @throws OsmNodeMissingFieldsException if required fields are missing or
+     *                                       invalid
      */
     private @NonNull Pos convertOsmNodeToPos(@NonNull OsmNode osmNode, @NonNull CampusType campusType) {
         // map OSM amenity to POS type
@@ -132,9 +138,12 @@ public class PosServiceImpl implements PosService {
     }
 
     /**
-     * Performs the actual upsert operation with consistent error handling and logging.
-     * Database constraint enforces name uniqueness - data layer will throw DuplicatePosNameException if violated.
-     * JPA lifecycle callbacks (@PrePersist/@PreUpdate) set timestamps automatically.
+     * Performs the actual upsert operation with consistent error handling and
+     * logging.
+     * Database constraint enforces name uniqueness - data layer will throw
+     * DuplicatePosNameException if violated.
+     * JPA lifecycle callbacks (@PrePersist/@PreUpdate) set timestamps
+     * automatically.
      *
      * @param pos the POS to upsert
      * @return the persisted POS with updated ID and timestamps

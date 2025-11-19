@@ -13,7 +13,8 @@ import static io.restassured.RestAssured.given;
 
 /**
  * Utility class for system tests.
- * Provides methods to manage PostgreSQL testcontainers and perform common API operations.
+ * Provides methods to manage PostgreSQL testcontainers and perform common API
+ * operations.
  */
 public class TestUtils {
     @SuppressWarnings("resource")
@@ -26,7 +27,8 @@ public class TestUtils {
                 .withReuse(true);
     }
 
-    public static void configurePostgresContainers (DynamicPropertyRegistry registry, PostgreSQLContainer<?> postgresContainer) {
+    public static void configurePostgresContainers(DynamicPropertyRegistry registry,
+            PostgreSQLContainer<?> postgresContainer) {
         registry.add("spring.datasource.url", postgresContainer::getJdbcUrl);
         registry.add("spring.datasource.username", postgresContainer::getUsername);
         registry.add("spring.datasource.password", postgresContainer::getPassword);
@@ -54,17 +56,16 @@ public class TestUtils {
                 .extract().as(PosDto.class);
     }
 
-    // TODO: Uncomment this after implementing filtering by name.
-//    public static PosDto retrievePosByName(String name) {
-//        return given()
-//                .contentType(ContentType.JSON)
-//                .queryParam("name", name)
-//                .when()
-//                .get("/api/pos/filter")
-//                .then()
-//                .statusCode(200)
-//                .extract().as(PosDto.class);
-//    }
+    public static PosDto retrievePosByName(String name) {
+        return given()
+                .contentType(ContentType.JSON)
+                .queryParam("name", name)
+                .when()
+                .get("/api/pos/filter")
+                .then()
+                .statusCode(200)
+                .extract().as(PosDto.class);
+    }
 
     public static List<PosDto> createPos(List<PosDto> posList) {
         return posList.stream()
@@ -75,8 +76,7 @@ public class TestUtils {
                         .post("/api/pos")
                         .then()
                         .statusCode(201)
-                        .extract().as(PosDto.class)
-                )
+                        .extract().as(PosDto.class))
                 .toList();
     }
 
@@ -89,8 +89,7 @@ public class TestUtils {
                         .put("/api/pos/{id}", posDto.id())
                         .then()
                         .statusCode(200)
-                        .extract().as(PosDto.class)
-                )
+                        .extract().as(PosDto.class))
                 .collect(Collectors.toList());
     }
 }

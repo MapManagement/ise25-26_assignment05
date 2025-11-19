@@ -30,19 +30,21 @@ public class PosController {
         return ResponseEntity.ok(
                 posService.getAll().stream()
                         .map(posDtoMapper::fromDomain)
-                        .toList()
-        );
+                        .toList());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<PosDto> getById(
             @PathVariable Long id) {
         return ResponseEntity.ok(
-                posDtoMapper.fromDomain(posService.getById(id))
-        );
+                posDtoMapper.fromDomain(posService.getById(id)));
     }
 
-    // TODO: Implement a new GET endpoint that supports filtering POS by name, e.g., /filter?name=Schmelzpunkt
+    @GetMapping("/filter")
+    public ResponseEntity<PosDto> getFiltered(@RequestParam String name) {
+        return ResponseEntity.ok(
+                posDtoMapper.fromDomain(posService.getByName(name)));
+    }
 
     @PostMapping("")
     public ResponseEntity<PosDto> create(
@@ -58,8 +60,7 @@ public class PosController {
             @PathVariable Long nodeId,
             @RequestBody CampusType campusType) {
         PosDto created = posDtoMapper.fromDomain(
-                posService.importFromOsmNode(nodeId, campusType)
-        );
+                posService.importFromOsmNode(nodeId, campusType));
         return ResponseEntity
                 .created(getLocation(created.id()))
                 .body(created);
@@ -84,13 +85,12 @@ public class PosController {
     private PosDto upsert(PosDto posDto) {
         return posDtoMapper.fromDomain(
                 posService.upsert(
-                        posDtoMapper.toDomain(posDto)
-                )
-        );
+                        posDtoMapper.toDomain(posDto)));
     }
 
     /**
      * Builds the location URI for a newly created resource.
+     * 
      * @param resourceId the ID of the created resource
      * @return the location URI
      */
