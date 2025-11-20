@@ -17,6 +17,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -65,12 +66,13 @@ public class CucumberPosSteps {
 
     /**
      * Register a Cucumber DataTable type for PosDto.
+     * 
      * @param row the DataTable row to map to a PosDto object
      * @return the mapped PosDto object
      */
     @DataTableType
     @SuppressWarnings("unused")
-    public PosDto toPosDto(Map<String,String> row) {
+    public PosDto toPosDto(Map<String, String> row) {
         return PosDto.builder()
                 .name(row.get("name"))
                 .description(row.get("description"))
@@ -92,6 +94,11 @@ public class CucumberPosSteps {
     }
 
     // TODO: Add Given step for new scenario
+    @Given("I insert the following POS elements")
+    public void iInsertTheFollowingPosElements(List<PosDto> elements) {
+        createdPosList = createPos(elements);
+        assertThat(createdPosList.size()).isEqualTo(elements.size());
+    }
 
     // When -----------------------------------------------------------------------
 
@@ -102,6 +109,19 @@ public class CucumberPosSteps {
     }
 
     // TODO: Add When step for new scenario
+    @When("I change the description of the POS called {string} to {string}")
+    public void iChangeTheDescriptionOfAPosToANewOne(String posName, String updatedDescription) {
+        PosDto targetPos = retrievePosByName(posName);
+
+        PosDto updatePos = targetPos.toBuilder()
+                .description(updatedDescription)
+                .build();
+
+        List<PosDto> updatedPosList = new ArrayList<PosDto>();
+        updatedPosList.add(updatePos);
+
+        updatePos(List.of(updatePos)).get(0);
+    }
 
     // Then -----------------------------------------------------------------------
 
@@ -114,4 +134,10 @@ public class CucumberPosSteps {
     }
 
     // TODO: Add Then step for new scenario
+    @Then("the POS element called {string} should have the description {string}")
+    public void thePOSElementCalledByNameShouldHaveUpdatedDescription(String posName, String updatedDescription) {
+        PosDto posByName = retrievePosByName(posName);
+
+        assertThat(posByName.description()).isEqualTo(updatedDescription);
+    }
 }
